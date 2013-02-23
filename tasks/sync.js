@@ -1,5 +1,8 @@
 var fs = require('promised-io/fs');
 var promise = require('promised-io/promise');
+var glob = require('glob');
+var path = require('path');
+var _ = require('underscore');
 
 module.exports = function(grunt) {
 
@@ -18,10 +21,9 @@ module.exports = function(grunt) {
     };
 
   var processPair = function(src, dest) {
-      //stat both files
+      //stat destination file
       return promise.all([fs.stat(src), fs.stat(dest)]).then(function(result) {
-        var srcStat = result[0],
-          destStat = result[1];
+        var srcStat = result[0], destStat = result[1];
 
         var isSrcDirectory = srcStat.isDirectory();
         var typeDiffers = isSrcDirectory !== destStat.isDirectory();
@@ -49,18 +51,12 @@ module.exports = function(grunt) {
     var done = this.async();
 
     promise.all(this.files.map(function(fileDef) {
-
-      var pairs = grunt.file.expandMapping(fileDef.src, fileDef.dest, fileDef);
-      //for all pairs
-      return promise.all(pairs.map(function(filePair) {
-        //for all srcs
-        return promise.all(filePair.src.forEach(function(src) {
-          return processPair(src, filePair.dest);
-        }));
-      }));
-
-    })).then(function() {
-      done();
+      var cwd = fileDef.cwd ? fileDef.cwd : '.';
+      return promise.all(fileDef.src.map(function(src){
+        return processPair(path.join(cwd, src), path.join(fileDef.dest, src));
+      }));      
+    })).then(function(promises) {
+      promise.all(promises).then(done);
     });
   });
 };

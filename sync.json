@@ -1,7 +1,7 @@
 {
   "main": {
     "files": [{
-      "src": ["./**"],
+      "src": ["**"],
       "dest": "bin/to",
       "cwd": "bin/from"
     }]

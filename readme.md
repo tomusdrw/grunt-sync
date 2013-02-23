@@ -19,7 +19,7 @@ Within your grunt file:
       main: {
         files: [{
           cwd: 'src'
-          src: ['./**'],
+          src: '**',
           dest: 'bin',
         }]
       }
@@ -32,21 +32,16 @@ Within your grunt file:
 ```
 
 ## More examples
-Examples taken from grunt-contrib-copy, because syntax is almost the same.
 ```javascript
 sync: {
   main: {
     files: [
       {src: ['path/**'], dest: 'dest/'}, // includes files in path and its subdirs
-      {cwd: 'path/', src: ['./**'], dest: 'dest/'}, // makes all src relative to cwd
-      {flatten: true, src: ['path/**'], dest: 'dest/', filter: 'isFile'} // flattens results to a single level
-      {filter: 'isFile', src: ['path/*'], dest: 'dest/'}, // includes files in path
+      {cwd: 'path/', src: ['**/*.js', '**/*.css'], dest: 'dest/'}, // makes all src relative to cwd
     ]
   }
 }
 ```
-
-Objects from `files` array are passed right to `grunt.file.expandMapping` function so you can also use any option from [grunt.file docs](https://github.com/gruntjs/grunt/wiki/grunt.file).
 
 
 ## TODO
