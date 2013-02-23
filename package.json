@@ -34,9 +34,7 @@
     "promised-io": "0.3.3",
     "grunt-complexity": "git+ssh://git@github.com:tomusdrw/grunt-complexity.git",
     "grunt-simple-mocha": "0.3.x",
-    "grunt-contrib-jshint": "0.1.x",
-    "glob": "~3.1.20",
-    "underscore": "~1.4.4"
+    "grunt-contrib-jshint": "0.1.x"
   },
   "devDependencies": {
     "mocha": "~1.8.1",

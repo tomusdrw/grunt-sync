@@ -1,6 +1,5 @@
 var fs = require('promised-io/fs');
 var promise = require('promised-io/promise');
-var glob = require('glob');
 var path = require('path');
 var _ = require('underscore');
 
