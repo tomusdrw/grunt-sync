@@ -1,0 +1,47 @@
+{
+	"name": "grunt-sync",
+	"description": "Task to synchronize two directories. Similar to grunt-copy but updates only files that have been changed.",
+	"version": "0.0.1",
+	"homepage": "https://github.com/tomusdrw/grunt-sync.git",
+	"author": {
+		"name": "Tomasz Drwiega",
+		"email": "tomusdrw@gmail.com",
+		"url": "http://blacksoft.eu"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tomusdrw/grunt-sync"
+	},
+	"bugs": {
+		"url": "https://github.com/tomusdrw/grunt-sync/issues"
+	},
+	"licences": [
+		{
+			"type": "MIT",
+			"url": "http://opensource.org/licenses/MIT"
+		}
+	],
+	"main": "Gruntfile.js",
+	"readmeFilename": "readme.md",
+	"engines": {
+		"node": ">=0.8.0"
+	},
+	"scripts": {
+		"test": "mocha"
+	},
+	"dependencies": {
+		"grunt": "0.4.x",
+    "grunt-simple-mocha": "0.3.x",
+    "grunt-contrib-jshint": "0.1.x"
+	},
+	"devDependencies": {
+		"mocha": "~1.8.1",
+    "chai": "1.4.2"
+	},
+	"keywords": [
+		"gruntplugin",
+		"sync",
+    "synchronize"
+		"copy"
+	]
+}
