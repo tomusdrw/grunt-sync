@@ -21,13 +21,13 @@ module.exports = function(grunt) {
 		jshint: {
 			all: '<%= files %>'
 		},
+		
+		sync: grunt.file.readJSON('sync.json'),
 
-		complexity: {
-			generic: grunt.file.readJSON('complexity.json')
-		}
-
+		complexity: grunt.file.readJSON('complexity.json')
 	});
 	grunt.loadNpmTasks('grunt-simple-mocha');
+	grunt.loadNpmTasks('grunt-complexity');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 
 	grunt.registerTask('default', ['jshint', 'simplemocha', 'complexity']);

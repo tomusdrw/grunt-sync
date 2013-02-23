@@ -31,6 +31,8 @@
 	},
 	"dependencies": {
 		"grunt": "0.4.x",
+    "promised-io": "0.3.3",
+    "grunt-complexity": "git+ssh://git@github.com:tomusdrw/grunt-complexity.git",
     "grunt-simple-mocha": "0.3.x",
     "grunt-contrib-jshint": "0.1.x"
 	},
@@ -41,7 +43,7 @@
 	"keywords": [
 		"gruntplugin",
 		"sync",
-    "synchronize"
+    "synchronize",
 		"copy"
 	]
 }

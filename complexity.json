@@ -1,9 +1,11 @@
 {
-  "src": "<%= files %>",
-  "options": {
-    "jsLintXML": "report.xml",
-    "cyclomatic": 3,
-    "halstead": 8,
-    "maintainability": 100
+  "generic": {
+    "src": "<%= files %>",
+    "options": {
+      "jsLintXML": "report.xml",
+      "cyclomatic": 3,
+      "halstead": 8,
+      "maintainability": 90
+    }
   }
 }
