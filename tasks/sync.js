@@ -22,7 +22,7 @@ module.exports = function(grunt) {
       return promise.all([fs.stat(src), fs.stat(dest)]).then(function(result) {
         var srcStat = result[0],
           destStat = result[1];
-          
+
         var isSrcDirectory = srcStat.isDirectory();
         var typeDiffers = isSrcDirectory !== destStat.isDirectory();
 
@@ -36,10 +36,10 @@ module.exports = function(grunt) {
         // we got an error which means that destination file does not exist
         // so make a copy
         if(grunt.file.isDir(src)) {
-          grunt.log.writeln('Creating ' + dest.cyan);
+          grunt.verbose.writeln('Creating ' + dest.cyan);
           grunt.file.mkdir(dest);
         } else {
-          grunt.log.writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
+          grunt.verbose.writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
           grunt.file.copy(src, dest);
         }
       });
