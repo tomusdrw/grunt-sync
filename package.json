@@ -30,7 +30,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "promised-io": "0.3.3",
+    "promised-io": "0.3.3"
   },
   "devDependencies": {
     "mocha": "~1.8.1",
