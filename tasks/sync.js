@@ -1,7 +1,6 @@
 var fs = require('promised-io/fs');
 var promise = require('promised-io/promise');
 var path = require('path');
-var _ = require('underscore');
 
 module.exports = function(grunt) {
 
