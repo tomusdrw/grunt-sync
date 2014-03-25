@@ -5,14 +5,14 @@ var path = require('path');
 module.exports = function(grunt) {
 
   var overwriteDest = function(src, dest) {
-      grunt.log.writeln('Overwriting ' + dest.cyan + 'because type differs.');
+      grunt.verbose.writeln('Overwriting ' + dest.cyan + 'because type differs.');
       grunt.file['delete'](dest);
       grunt.file.copy(src, dest);
     };
   var updateIfNeeded = function(src, dest, srcStat, destStat) {
       // we can now compare modification dates of files
       if(srcStat.mtime.getTime() > destStat.mtime.getTime()) {
-        grunt.log.writeln('Updating file ' + dest.cyan);
+        grunt.verbose.writeln('Updating file ' + dest.cyan);
         // and just update destination
         grunt.file.copy(src, dest);
       }
