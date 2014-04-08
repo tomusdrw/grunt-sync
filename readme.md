@@ -18,8 +18,11 @@ Within your grunt file:
     sync: {
       main: {
         files: [{
-          cwd: 'src'
-          src: '**',
+          cwd: 'src',
+          src: [
+            '**', /* Include everything */
+            '!**/*.txt' /* but exclude txt files */
+          ],
           dest: 'bin',
         }]
       }
