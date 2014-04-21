@@ -4,21 +4,21 @@ var path = require('path');
 
 module.exports = function(grunt) {
 
-  var overwriteDest = function(src, dest) {
-      grunt.verbose.writeln('Overwriting ' + dest.cyan + 'because type differs.');
+  var overwriteDest = function(options, src, dest) {
+      grunt[options.logMethod].writeln('Overwriting ' + dest.cyan + 'because type differs.');
       grunt.file['delete'](dest);
       grunt.file.copy(src, dest);
     };
-  var updateIfNeeded = function(src, dest, srcStat, destStat) {
+  var updateIfNeeded = function(options, src, dest, srcStat, destStat) {
       // we can now compare modification dates of files
       if(srcStat.mtime.getTime() > destStat.mtime.getTime()) {
-        grunt.verbose.writeln('Updating file ' + dest.cyan);
+        grunt[options.logMethod].writeln('Updating file ' + dest.cyan);
         // and just update destination
         grunt.file.copy(src, dest);
       }
     };
 
-  var processPair = function(src, dest) {
+  var processPair = function(options, src, dest) {
       //stat destination file
       return promise.all([fs.stat(src), fs.stat(dest)]).then(function(result) {
         var srcStat = result[0], destStat = result[1];
@@ -28,18 +28,18 @@ module.exports = function(grunt) {
 
         // If types differ we have to overwrite destination.
         if(typeDiffers) {
-          overwriteDest(src, dest);
+          overwriteDest(options,src, dest);
         } else if(!isSrcDirectory) {
-          updateIfNeeded(src, dest, srcStat, destStat);
+          updateIfNeeded(options, src, dest, srcStat, destStat);
         }
       }, function() {
         // we got an error which means that destination file does not exist
         // so make a copy
         if(grunt.file.isDir(src)) {
-          grunt.verbose.writeln('Creating ' + dest.cyan);
+          grunt[options.logMethod].writeln('Creating ' + dest.cyan);
           grunt.file.mkdir(dest);
         } else {
-          grunt.verbose.writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
+          grunt[options.logMethod].writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
           grunt.file.copy(src, dest);
         }
       });
@@ -47,6 +47,9 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function() {
     var done = this.async();
+    var options = {
+      logMethod: this.data.verbose ? 'log' : 'verbose'
+    };
 
     promise.all(this.files.map(function(fileDef) {
       var cwd = fileDef.cwd ? fileDef.cwd : '.';
@@ -57,7 +60,7 @@ module.exports = function(grunt) {
         if(fileDef.orig.expand) {
           dest = fileDef.dest;
         }
-        return processPair(path.join(cwd, src), dest);
+        return processPair(options, path.join(cwd, src), dest);
       }));      
     })).then(function(promises) {
       promise.all(promises).then(done);

@@ -24,7 +24,8 @@ Within your grunt file:
             '!**/*.txt' /* but exclude txt files */
           ],
           dest: 'bin',
-        }]
+        }],
+        verbose: true // Display log messages when copying files
       }
     }
 
@@ -41,7 +42,8 @@ sync: {
     files: [
       {src: ['path/**'], dest: 'dest/'}, // includes files in path and its subdirs
       {cwd: 'path/', src: ['**/*.js', '**/*.css'], dest: 'dest/'}, // makes all src relative to cwd
-    ]
+    ],
+    verbose: true
   }
 }
 ```
