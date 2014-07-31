@@ -4,17 +4,38 @@ var path = require('path');
 
 module.exports = function(grunt) {
 
+  var tryCopy = function(src, dest) {
+      try {
+        grunt.file.copy(src, dest);
+      } catch (e) {
+        grunt.log.warn('Cannot copy to ' + dest.red);
+      }
+    };
+
+  var tryMkdir = function(dest) {
+      try {
+        grunt.file.mkdir(dest);
+      } catch (e) {
+        grunt.log.warn('Cannot create directory ' + dest.red);
+      }
+    };
+
   var overwriteDest = function(options, src, dest) {
       grunt[options.logMethod].writeln('Overwriting ' + dest.cyan + 'because type differs.');
-      grunt.file['delete'](dest);
-      grunt.file.copy(src, dest);
+      try {
+        grunt.file['delete'](dest);
+        grunt.file.copy(src, dest);
+      } catch(e) {
+        grunt.log.warn('Cannot overwrite ' + dest.red);
+      }
     };
+
   var updateIfNeeded = function(options, src, dest, srcStat, destStat) {
       // we can now compare modification dates of files
       if(srcStat.mtime.getTime() > destStat.mtime.getTime()) {
         grunt[options.logMethod].writeln('Updating file ' + dest.cyan);
         // and just update destination
-        grunt.file.copy(src, dest);
+        tryCopy(src, dest);
       }
     };
 
@@ -37,10 +58,10 @@ module.exports = function(grunt) {
         // so make a copy
         if(grunt.file.isDir(src)) {
           grunt[options.logMethod].writeln('Creating ' + dest.cyan);
-          grunt.file.mkdir(dest);
+          tryMkdir(dest);
         } else {
           grunt[options.logMethod].writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
-          grunt.file.copy(src, dest);
+          tryCopy(src, dest);
         }
       });
     };

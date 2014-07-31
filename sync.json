@@ -4,6 +4,7 @@
       "src": ["**"],
       "dest": "bin/to",
       "cwd": "bin/from"
-    }]
+    }],
+    "verbose": true
   }
 }
