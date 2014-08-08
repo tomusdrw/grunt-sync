@@ -43,11 +43,15 @@ sync: {
       {src: ['path/**'], dest: 'dest/'}, // includes files in path and its subdirs
       {cwd: 'path/', src: ['**/*.js', '**/*.css'], dest: 'dest/'}, // makes all src relative to cwd
     ],
-    verbose: true
+    verbose: true,
+    updateOnly: true // Don't remove any files from `dest` (works around 30% faster)
   }
 }
 ```
 
+## Changelog
+* 0.1.0 - Files missing that are not in `src` are deleted from `dest` (unless you specify `updateOnly`)
+
 
 ## TODO
-Task does not remove any files and directories in `dest` that are no longer in `src`.
+Research if it's possible to have better integration with `grunt-contrib-watch` - update only changed files instead of scanning everything.
