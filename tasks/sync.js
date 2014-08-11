@@ -92,7 +92,7 @@ module.exports = function(grunt) {
 
             return promise.all(sortedDirs.map(function(dir){
                 logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
-                return fs.rmdir(dir);
+              return fs.rmdir(dir);
             }));
         });
       });
@@ -165,7 +165,9 @@ module.exports = function(grunt) {
 
                 // We have to do second pass to remove objects from dest
                 var defer = new promise.Deferred();
-                glob(path.join(dest, '**'), {}, function(err, result) {
+                glob(path.join(dest, '**'), {
+                    dot: true
+                }, function(err, result) {
                     if (err) {
                         defer.reject(err);
                         return;
