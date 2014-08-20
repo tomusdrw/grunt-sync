@@ -1,7 +1,8 @@
-var fs = require('promised-io/fs');
-var promise = require('promised-io/promise');
-var path = require('path');
-var glob = require('glob');
+var fs = require('promised-io/fs'),
+    promise = require('promised-io/promise'),
+    path = require('path'),
+    glob = require('glob'),
+    util = require('util');
 
 module.exports = function(grunt) {
 
@@ -62,6 +63,7 @@ module.exports = function(grunt) {
                 tryCopy(src, dest);
             });
         };
+
         //stat destination file
         return promise.all([fs.stat(src), fs.stat(dest)]).then(function(result) {
             var srcStat = result[0],
@@ -151,13 +153,14 @@ module.exports = function(grunt) {
     };
 
     grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function() {
-        var done = this.async();
-        var logger = grunt[this.data.verbose ? 'log' : 'verbose'];
-        var updateOnly = !!this.data.updateOnly;
-        var justPretend = !!this.data.pretend;
+        var done = this.async(),
+            logger = grunt[this.data.verbose ? 'log' : 'verbose'],
+            updateOnly = !!this.data.updateOnly,
+            justPretend = !!this.data.pretend,
+            ignoredPatterns = this.data.ignoreInDest,
+            expandedPaths = {};
 
 
-        var expandedPaths = {};
         var getExpandedPaths = function(origDest) {
             expandedPaths[origDest] = expandedPaths[origDest] || [];
             return expandedPaths[origDest];
@@ -188,13 +191,9 @@ module.exports = function(grunt) {
                 return;
             }
 
-            // Second pass
-            return promise.all(Object.keys(expandedPaths).map(function(dest) {
-                var processedDestinations = expandedPaths[dest];
-
-                // We have to do second pass to remove objects from dest
+            var getDestPaths = function(dest, pattern) {
                 var defer = new promise.Deferred();
-                glob(path.join(dest, '**'), {
+                glob(path.join(dest, pattern), {
                     dot: true
                 }, function(err, result) {
                     if (err) {
@@ -203,10 +202,47 @@ module.exports = function(grunt) {
                     }
                     defer.resolve(result);
                 });
+                return defer.promise;
+            };
+            var getIgnoredPaths = function(dest, ignore) {
+                var defer = new promise.Deferred();
+                if (!ignore) {
+                    defer.resolve([]);
+                    return;
+                }
+                if (!util.isArray(ignore)) {
+                    ignore = [ignore]
+                }
 
-                return defer.promise.then(function(result) {
+                promise.all(ignore.map(function(pattern) {
+                    return getDestPaths(dest, pattern);
+                })).then(function(results) {
+                    var flat = results.reduce(function(memo, a) {
+                        return memo.concat(a);
+                    }, []);
+                    defer.resolve(flat);
+                }, function(err) {
+                    defer.reject(err);
+                });
+
+                return defer.promise;
+            };
+
+            // Second pass
+            return promise.all(Object.keys(expandedPaths).map(function(dest) {
+                var processedDestinations = expandedPaths[dest];
+
+                // We have to do second pass to remove objects from dest
+                var destPaths = getDestPaths(dest, '**');
+
+                // Check if we have any ignore patterns
+                var ignoredPaths = getIgnoredPaths(dest, ignoredPatterns);
+
+                return promise.all([destPaths, ignoredPaths]).then(function(result) {
                     // Calculate diff
-                    var toRemove = fastArrayDiff(result, processedDestinations);
+                    var toRemove = fastArrayDiff(result[0], processedDestinations);
+                    // And filter also ignored paths
+                    toRemove = fastArrayDiff(toRemove, result[1]);
                     return removePaths(justPretend, logger, toRemove);
                 });
             }));

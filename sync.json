@@ -6,6 +6,7 @@
             "expand": true,
             "cwd": "bin/from"
         }],
+        "ignoreInDest": ["t", "*.js"],
         "updateOnly": false,
         "verbose": true,
         "pretend": true

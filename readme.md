@@ -25,6 +25,7 @@ Within your grunt file:
           ],
           dest: 'bin',
         }],
+        ignoreInDest: "**/*.js", // Never remove js files from destination
         verbose: true // Display log messages when copying files
       }
     }
@@ -44,7 +45,9 @@ sync: {
       {cwd: 'path/', src: ['**/*.js', '**/*.css'], dest: 'dest/'}, // makes all src relative to cwd
     ],
     verbose: true,
+    pretend: true, // Don't do any disk operations - just write log
     updateOnly: true // Don't remove any files from `dest` (works around 30% faster)
+
   }
 }
 ```
