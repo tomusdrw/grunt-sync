@@ -21,8 +21,7 @@ module.exports = function(grunt) {
         }
     };
 
-    var overwriteDest = function(logger, src, dest) {
-        logger.writeln('Overwriting ' + dest.cyan + ' because type differs.');
+    var overwriteDest = function(src, dest) {
         try {
             grunt.file['delete'](dest);
             grunt.file.copy(src, dest);
@@ -31,16 +30,38 @@ module.exports = function(grunt) {
         }
     };
 
-    var updateIfNeeded = function(logger, src, dest, srcStat, destStat) {
-        // we can now compare modification dates of files
-        if (srcStat.mtime.getTime() > destStat.mtime.getTime()) {
-            logger.writeln('Updating file ' + dest.cyan);
-            // and just update destination
-            tryCopy(src, dest);
-        }
-    };
 
-    var processPair = function(logger, src, dest) {
+    var processPair = function(justPretend, logger, src, dest) {
+        var doOrPretend = function(operation) {
+            if (justPretend) {
+                return;
+            }
+            operation();
+        };
+
+        var overwriteOrUpdate = function(isSrcDirectory, typeDiffers, srcStat, destStat) {
+
+            // If types differ we have to overwrite destination.
+            if (typeDiffers) {
+                logger.writeln('Overwriting ' + dest.cyan + ' because type differs.');
+
+                doOrPretend(function() {
+                    overwriteDest(src, dest);
+                });
+                return;
+            }
+
+            // we can now compare modification dates of files
+            if (isSrcDirectory || srcStat.mtime.getTime() <= destStat.mtime.getTime()) {
+                return;
+            }
+
+            logger.writeln('Updating file ' + dest.cyan);
+            doOrPretend(function() {
+                // and just update destination
+                tryCopy(src, dest);
+            });
+        };
         //stat destination file
         return promise.all([fs.stat(src), fs.stat(dest)]).then(function(result) {
             var srcStat = result[0],
@@ -49,58 +70,65 @@ module.exports = function(grunt) {
             var isSrcDirectory = srcStat.isDirectory();
             var typeDiffers = isSrcDirectory !== destStat.isDirectory();
 
-            // If types differ we have to overwrite destination.
-            if (typeDiffers) {
-                overwriteDest(logger, src, dest);
-            } else if (!isSrcDirectory) {
-                updateIfNeeded(logger, src, dest, srcStat, destStat);
-            }
+            overwriteOrUpdate(isSrcDirectory, typeDiffers, srcStat, destStat);
         }, function() {
             // we got an error which means that destination file does not exist
             // so make a copy
             if (grunt.file.isDir(src)) {
                 logger.writeln('Creating ' + dest.cyan);
-                tryMkdir(dest);
+
+                doOrPretend(function() {
+                    tryMkdir(dest);
+                });
             } else {
                 logger.writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
-                tryCopy(src, dest);
+
+                doOrPretend(function() {
+                    tryCopy(src, dest);
+                });
             }
         });
     };
 
-    var removePaths = function(logger, paths) {
+    var removePaths = function(justPretend, logger, paths) {
 
-      return promise.all(paths.map(function(file){
-          return fs.stat(file).then(function(stat){
-            return {
-                file: file,
-                isDirectory: stat.isDirectory()
-            };
-          });
-      })).then(function(stats) {
-        var paths = splitFilesAndDirs(stats);
-
-        // First we need to process files
-        return promise.all(paths.files.map(function(filePath) {
-            logger.writeln('Unlinking ' + filePath.cyan + ' because it was removed from src.');
-            return fs.unlink(filePath);
-        })).then(function() {
-            // Then process directories in ascending order
-            var sortedDirs = paths.dirs.sort(function(a, b) {
-                return b.length - a.length;
+        return promise.all(paths.map(function(file) {
+            return fs.stat(file).then(function(stat) {
+                return {
+                    file: file,
+                    isDirectory: stat.isDirectory()
+                };
             });
+        })).then(function(stats) {
+            var paths = splitFilesAndDirs(stats);
 
-            return promise.all(sortedDirs.map(function(dir){
-                logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
-              return fs.rmdir(dir);
-            }));
+            // First we need to process files
+            return promise.all(paths.files.map(function(filePath) {
+                logger.writeln('Unlinking ' + filePath.cyan + ' because it was removed from src.');
+                if (justPretend) {
+                    return;
+                }
+                return fs.unlink(filePath);
+            })).then(function() {
+                // Then process directories in ascending order
+                var sortedDirs = paths.dirs.sort(function(a, b) {
+                    return b.length - a.length;
+                });
+
+                return promise.all(sortedDirs.map(function(dir) {
+                    logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
+                    if (justPretend) {
+                        return;
+                    }
+                    return fs.rmdir(dir);
+                }));
+            });
         });
-      });
 
     };
 
     var splitFilesAndDirs = function(stats) {
-        return stats.reduce(function(memo, stat){
+        return stats.reduce(function(memo, stat) {
             if (stat.isDirectory) {
                 memo.dirs.push(stat.file);
             } else {
@@ -115,17 +143,18 @@ module.exports = function(grunt) {
 
     var fastArrayDiff = function(from, diff) {
         diff.map(function(v) {
-          from[from.indexOf(v)] = undefined;
+            from[from.indexOf(v)] = undefined;
         });
         return from.filter(function(v) {
-          return v;
+            return v;
         });
     };
 
     grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function() {
         var done = this.async();
         var logger = grunt[this.data.verbose ? 'log' : 'verbose'];
-        var updateOnly = this.data.updateOnly;
+        var updateOnly = !!this.data.updateOnly;
+        var justPretend = !!this.data.pretend;
 
 
         var expandedPaths = {};
@@ -151,14 +180,14 @@ module.exports = function(grunt) {
                     dest = path.join(fileDef.dest, src);
                 }
                 processedDestinations.push(dest);
-                return processPair(logger, path.join(cwd, src), dest);
+                return processPair(justPretend, logger, path.join(cwd, src), dest);
             }));
 
-        })).then(function(){
+        })).then(function() {
             if (updateOnly) {
                 return;
             }
-            
+
             // Second pass
             return promise.all(Object.keys(expandedPaths).map(function(dest) {
                 var processedDestinations = expandedPaths[dest];
@@ -174,11 +203,11 @@ module.exports = function(grunt) {
                     }
                     defer.resolve(result);
                 });
-                
-                return defer.promise.then(function(result){
-                     // Calculate diff
+
+                return defer.promise.then(function(result) {
+                    // Calculate diff
                     var toRemove = fastArrayDiff(result, processedDestinations);
-                    return removePaths(logger, toRemove);
+                    return removePaths(justPretend, logger, toRemove);
                 });
             }));
         }).then(done);

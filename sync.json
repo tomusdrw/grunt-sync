@@ -1,12 +1,13 @@
 {
-  "main": {
-    "files": [{
-      "src": ["**"],
-      "dest": "bin/to",
-      "expand": true,
-      "cwd": "bin/from"
-    }],
-    "updateOnly": false,
-    "verbose": true
-  }
+    "main": {
+        "files": [{
+            "src": ["**"],
+            "dest": "bin/to",
+            "expand": true,
+            "cwd": "bin/from"
+        }],
+        "updateOnly": false,
+        "verbose": true,
+        "pretend": true
+    }
 }
