@@ -208,8 +208,9 @@ module.exports = function(grunt) {
                 var defer = new promise.Deferred();
                 if (!ignore) {
                     defer.resolve([]);
-                    return;
+                    return defer.promise;
                 }
+
                 if (!util.isArray(ignore)) {
                     ignore = [ignore]
                 }
