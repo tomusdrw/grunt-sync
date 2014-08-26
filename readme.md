@@ -26,6 +26,7 @@ Within your grunt file:
           dest: 'bin',
         }],
         ignoreInDest: "**/*.js", // Never remove js files from destination
+        pretend: true, // Don't do any IO. Before you run the task make sure it doesn't remove too much.
         verbose: true // Display log messages when copying files
       }
     }

@@ -169,9 +169,11 @@ module.exports = function(grunt) {
         promise.all(this.files.map(function(fileDef) {
             var cwd = fileDef.cwd ? fileDef.cwd : '.';
             var isExpanded = fileDef.orig.expand;
-            var origDest = fileDef.orig.dest;
+            var origDest = path.join(fileDef.orig.dest, '');
 
             var processedDestinations = getExpandedPaths(origDest);
+            // Always include destination as processed.
+            processedDestinations.push(origDest.substr(0, origDest.length - 1));
 
             return promise.all(fileDef.src.map(function(src) {
                 var dest;

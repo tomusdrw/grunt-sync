@@ -1,39 +1,39 @@
 /*global module:false*/
 module.exports = function(grunt) {
-	require('time-grunt')(grunt);
-	
-	// Project configuration.
-	grunt.initConfig({
+    require('time-grunt')(grunt);
 
-		files: ['Gruntfile.js', 'tasks/**/*.js', 'test/*.js'],
+    // Project configuration.
+    grunt.initConfig({
 
-		watch: {
-			all: {
-				files: '<%= files %>'
-			}
-		},
+        files: ['Gruntfile.js', 'tasks/**/*.js', 'test/*.js'],
 
-		simplemocha: {
-			all: {
-				src: 'test/*.js'
-			}
-		},
+        watch: {
+            all: {
+                files: '<%= files %>'
+            }
+        },
 
-		jshint: {
-			all: '<%= files %>'
-		},
-		
-		sync: grunt.file.readJSON('sync.json'),
+        simplemocha: {
+            all: {
+                src: 'test/*.js'
+            }
+        },
 
-		complexity: grunt.file.readJSON('complexity.json')
-	});
-	grunt.loadNpmTasks('grunt-simple-mocha');
-	grunt.loadNpmTasks('grunt-complexity');
-	grunt.loadNpmTasks('grunt-contrib-jshint');
+        jshint: {
+            all: '<%= files %>'
+        },
 
-	grunt.registerTask('default', ['jshint', 'simplemocha', 'complexity']);
+        sync: grunt.file.readJSON('sync.json'),
 
-	// Used for testing only, you shouldn't add this to your code:
-	grunt.loadTasks('tasks');
+        complexity: grunt.file.readJSON('complexity.json')
+    });
+    grunt.loadNpmTasks('grunt-simple-mocha');
+    grunt.loadNpmTasks('grunt-complexity');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+
+    grunt.registerTask('default', ['jshint', 'simplemocha', 'complexity']);
+
+    // Used for testing only, you shouldn't add this to your code:
+    grunt.loadTasks('tasks');
 
 };
