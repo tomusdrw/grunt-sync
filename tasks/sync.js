@@ -152,6 +152,12 @@ module.exports = function(grunt) {
         });
     };
 
+    var convertPathsToSystemSpecific = function(paths) {
+        return paths.map(function(filePath) {
+            return path.join.apply(path, filePath.split('/'));
+        });
+    };
+
     grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function() {
         var done = this.async(),
             logger = grunt[this.data.verbose ? 'log' : 'verbose'],
@@ -242,10 +248,13 @@ module.exports = function(grunt) {
                 var ignoredPaths = getIgnoredPaths(dest, ignoredPatterns);
 
                 return promise.all([destPaths, ignoredPaths]).then(function(result) {
+                    var paths = convertPathsToSystemSpecific(result[0]);
+                    var ignoredPaths = convertPathsToSystemSpecific(result[1]);
+
                     // Calculate diff
-                    var toRemove = fastArrayDiff(result[0], processedDestinations);
+                    var toRemove = fastArrayDiff(paths, processedDestinations);
                     // And filter also ignored paths
-                    toRemove = fastArrayDiff(toRemove, result[1]);
+                    toRemove = fastArrayDiff(toRemove, ignoredPaths);
                     return removePaths(justPretend, logger, toRemove);
                 });
             }));

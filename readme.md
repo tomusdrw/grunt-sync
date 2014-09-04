@@ -54,6 +54,8 @@ sync: {
 ```
 
 ## Changelog
+* 0.1.2 - Deleting all files in destination on Windows solved.
+* 0.1.1 - Fixed issue with trailing slash in destination.
 * 0.1.0 - Files missing that are not in `src` are deleted from `dest` (unless you specify `updateOnly`)
 
 
