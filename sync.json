@@ -2,13 +2,14 @@
     "main": {
         "files": [{
             "src": ["**"],
-            "dest": "bin/to",
+            "dest": "bin/to/",
             "expand": true,
             "cwd": "bin/from"
         }],
         "ignoreInDest": ["t", "*.js"],
-        "updateOnly": false,
+        "updateAndDelete": true,
         "verbose": true,
         "pretend": true
     }
 }
+

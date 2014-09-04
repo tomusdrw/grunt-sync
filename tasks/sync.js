@@ -161,14 +161,18 @@ module.exports = function(grunt) {
     grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function() {
         var done = this.async(),
             logger = grunt[this.data.verbose ? 'log' : 'verbose'],
-            updateOnly = !!this.data.updateOnly,
+            updateOnly = !this.data.updateAndDelete,
             justPretend = !!this.data.pretend,
             ignoredPatterns = this.data.ignoreInDest,
             expandedPaths = {};
 
 
         var getExpandedPaths = function(origDest) {
-            expandedPaths[origDest] = expandedPaths[origDest] || [];
+            if (!expandedPaths[origDest]) {
+                // Always include destination as processed.
+                expandedPaths[origDest] = [origDest.replace(new RegExp("\\" + path.sep + "$"), '')];
+                return expandedPaths[origDest]
+            }
             return expandedPaths[origDest];
         };
 
@@ -178,8 +182,6 @@ module.exports = function(grunt) {
             var origDest = path.join(fileDef.orig.dest, '');
 
             var processedDestinations = getExpandedPaths(origDest);
-            // Always include destination as processed.
-            processedDestinations.push(origDest.substr(0, origDest.length - 1));
 
             return promise.all(fileDef.src.map(function(src) {
                 var dest;
@@ -239,7 +241,7 @@ module.exports = function(grunt) {
 
             // Second pass
             return promise.all(Object.keys(expandedPaths).map(function(dest) {
-                var processedDestinations = expandedPaths[dest];
+                var processedDestinations = convertPathsToSystemSpecific(expandedPaths[dest]);
 
                 // We have to do second pass to remove objects from dest
                 var destPaths = getDestPaths(dest, '**');

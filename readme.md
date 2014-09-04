@@ -25,8 +25,7 @@ Within your grunt file:
           ],
           dest: 'bin',
         }],
-        ignoreInDest: "**/*.js", // Never remove js files from destination
-        pretend: true, // Don't do any IO. Before you run the task make sure it doesn't remove too much.
+        pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much.
         verbose: true // Display log messages when copying files
       }
     }
@@ -47,17 +46,28 @@ sync: {
     ],
     verbose: true,
     pretend: true, // Don't do any disk operations - just write log
-    updateOnly: true // Don't remove any files from `dest` (works around 30% faster)
+    ignoreInDest: "**/*.js", // Never remove js files from destination
+    updateAndDelete: true // Remove all files from desc that are not found in src
 
   }
 }
 ```
 
+## Installation
+```
+npm install grunt-sync --save
+```
+
 ## Changelog
+* 0.2.0 - Default configuration will not remove any files any more. You have to specify `updateAndDelete` option to remove any files from destination.
 * 0.1.2 - Deleting all files in destination on Windows solved.
 * 0.1.1 - Fixed issue with trailing slash in destination.
 * 0.1.0 - Files missing that are not in `src` are deleted from `dest` (unless you specify `updateOnly`)
 
+## Migration 0.1.x -> 0.2.x
+In version 0.2 you have to explicitly specify that you want the plugin to remove files from destination. See `updateAndDelete` option and run with `pretend:true` first to make sure that it doesn't remove any crucial files. You can tune what files should be left untouched with `ignoreInDest` property.
+
+If you have `updateOnly:true` in your 0.1 config you can remove this option. For those who used `updateOnly:false` you have to include `updateAndDelete:true` in 0.2 config to keep the same behavior.
 
 ## TODO
 Research if it's possible to have better integration with `grunt-contrib-watch` - update only changed files instead of scanning everything.
