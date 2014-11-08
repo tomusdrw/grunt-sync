@@ -59,6 +59,7 @@ npm install grunt-sync --save
 ```
 
 ## Changelog
+* 0.2.1 - Fixed grunt Compact Format.
 * 0.2.0 - Default configuration will not remove any files any more. You have to specify `updateAndDelete` option to remove any files from destination.
 * 0.1.2 - Deleting all files in destination on Windows solved.
 * 0.1.1 - Fixed issue with trailing slash in destination.
