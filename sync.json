@@ -10,6 +10,9 @@
         "updateAndDelete": true,
         "verbose": true,
         "pretend": true
+    },
+    "rename": {
+        "src": "bin/somefile.txt",
+        "dest": "bin/somefile2.txt"
     }
 }
-

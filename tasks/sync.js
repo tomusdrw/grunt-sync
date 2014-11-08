@@ -177,6 +177,7 @@ module.exports = function(grunt) {
         };
 
         promise.all(this.files.map(function(fileDef) {
+            var isCompactForm = this.data.src && this.data.dest;
             var cwd = fileDef.cwd ? fileDef.cwd : '.';
             var isExpanded = fileDef.orig.expand;
             var origDest = path.join(fileDef.orig.dest, '');
@@ -187,7 +188,7 @@ module.exports = function(grunt) {
                 var dest;
                 // when using expanded mapping dest is the destination file
                 // not the destination folder
-                if (isExpanded) {
+                if (isExpanded || isCompactForm) {
                     dest = fileDef.dest;
                 } else {
                     dest = path.join(fileDef.dest, src);
@@ -196,7 +197,7 @@ module.exports = function(grunt) {
                 return processPair(justPretend, logger, path.join(cwd, src), dest);
             }));
 
-        })).then(function() {
+        }, this)).then(function() {
             if (updateOnly) {
                 return;
             }
