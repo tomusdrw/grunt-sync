@@ -123,7 +123,7 @@ module.exports = function(grunt) {
                     if (justPretend) {
                         return;
                     }
-                    return fs.rmdir(dir);
+                    return grunt.file.delete(dir, {force:true});
                 }));
             });
         });
