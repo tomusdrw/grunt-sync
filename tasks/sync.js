@@ -107,6 +107,7 @@ module.exports = function(grunt) {
             // First we need to process files
             return promise.all(paths.files.map(function(filePath) {
                 logger.writeln('Unlinking ' + filePath.cyan + ' because it was removed from src.');
+
                 if (justPretend) {
                     return;
                 }
@@ -158,6 +159,19 @@ module.exports = function(grunt) {
         });
     };
 
+    var addDirectoriesPaths = function(arr, dest) {
+        var f = dest.split(path.sep);
+        var i, p;
+        p = f[0];
+
+        for (i=1; i<f.length - 1; ++i) {
+            p += path.sep + f[i];
+            if (arr.indexOf(p) === -1) {
+                arr.push(p);
+            }
+        }
+    };
+
     grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function() {
         var done = this.async(),
             logger = grunt[this.data.verbose ? 'log' : 'verbose'],
@@ -193,7 +207,12 @@ module.exports = function(grunt) {
                 } else {
                     dest = path.join(fileDef.dest, src);
                 }
-                processedDestinations.push(dest);
+                if (!updateOnly) {
+                    processedDestinations.push(dest);
+                    // Make sure to add directory of file as well (handle cases when source has pattern for files only)
+                    addDirectoriesPaths(processedDestinations, dest);
+                }
+                // Process pair
                 return processPair(justPretend, logger, path.join(cwd, src), dest);
             }));
 

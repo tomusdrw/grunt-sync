@@ -14,5 +14,12 @@
     "rename": {
         "src": "bin/somefile.txt",
         "dest": "bin/somefile2.txt"
+    },
+    "windows": {
+	"files": [
+		{ "src": ["www\\**\\*.*", "!**\\*.ts"], "dest": "cordova\\"}],
+	"verbose": true,
+	"pretend": false,
+	"updateAndDelete": true
     }
 }
