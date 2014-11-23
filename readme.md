@@ -59,6 +59,7 @@ npm install grunt-sync --save
 ```
 
 ## Changelog
+* 0.2.2 - Fixed issue with `updateAndDelete` when source patterns matches only files.
 * 0.2.1 - Fixed grunt Compact Format.
 * 0.2.0 - Default configuration will not remove any files any more. You have to specify `updateAndDelete` option to remove any files from destination.
 * 0.1.2 - Deleting all files in destination on Windows solved.
@@ -71,4 +72,8 @@ In version 0.2 you have to explicitly specify that you want the plugin to remove
 If you have `updateOnly:true` in your 0.1 config you can remove this option. For those who used `updateOnly:false` you have to include `updateAndDelete:true` in 0.2 config to keep the same behavior.
 
 ## TODO
-Research if it's possible to have better integration with `grunt-contrib-watch` - update only changed files instead of scanning everything.
+
+* Research if it's possible to have better integration with `grunt-contrib-watch` - update only changed files instead of scanning everything.
+* Some tests for common problems
+* Some tests to assure performance
+* Rewrite `updateAndDelete` in more elegant way (maybe use patterns from source?)
