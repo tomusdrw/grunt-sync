@@ -59,6 +59,7 @@ npm install grunt-sync --save
 ```
 
 ## Changelog
+* 0.2.3 - Fixed issue with files defined as array when using `updateAndDelete`.
 * 0.2.2 - Fixed issue with `updateAndDelete` when source patterns matches only files.
 * 0.2.1 - Fixed grunt Compact Format.
 * 0.2.0 - Default configuration will not remove any files any more. You have to specify `updateAndDelete` option to remove any files from destination.
