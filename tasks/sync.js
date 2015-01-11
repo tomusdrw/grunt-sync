@@ -2,7 +2,8 @@ var fs = require('promised-io/fs'),
   promise = require('promised-io/promise'),
   path = require('path'),
   glob = require('glob'),
-  util = require('util');
+  util = require('util'),
+  _ = require('lodash');
 
 module.exports = function(grunt) {
 
@@ -185,7 +186,7 @@ module.exports = function(grunt) {
       if (!expandedPaths[origDest]) {
         // Always include destination as processed.
         expandedPaths[origDest] = [origDest.replace(new RegExp("\\" + path.sep + "$"), '')];
-        return expandedPaths[origDest]
+        return expandedPaths[origDest];
       }
       return expandedPaths[origDest];
     };
@@ -234,6 +235,7 @@ module.exports = function(grunt) {
         });
         return defer.promise;
       };
+
       var getIgnoredPaths = function(dest, ignore) {
         var defer = new promise.Deferred();
         if (!ignore) {
@@ -242,7 +244,7 @@ module.exports = function(grunt) {
         }
 
         if (!util.isArray(ignore)) {
-          ignore = [ignore]
+          ignore = [ignore];
         }
 
         promise.all(ignore.map(function(pattern) {
@@ -269,17 +271,31 @@ module.exports = function(grunt) {
         // Check if we have any ignore patterns
         var ignoredPaths = getIgnoredPaths(dest, ignoredPatterns);
 
-        return promise.all([destPaths, ignoredPaths]).then(function(result) {
-          var paths = convertPathsToSystemSpecific(result[0]);
-          var ignoredPaths = convertPathsToSystemSpecific(result[1]);
+        return promise.all([destPaths, ignoredPaths, processedDestinations]);
+      })).then(function(result) {
+        var files = result.map(function(destAndIgnored) {
+          var paths = convertPathsToSystemSpecific(destAndIgnored[0]);
+          var ignoredPaths = convertPathsToSystemSpecific(destAndIgnored[1]);
 
-          // Calculate diff
-          var toRemove = fastArrayDiff(paths, processedDestinations);
-          // And filter also ignored paths
-          toRemove = fastArrayDiff(toRemove, ignoredPaths);
-          return removePaths(justPretend, logger, toRemove);
-        });
-      }));
+          return [paths, ignoredPaths, destAndIgnored[2]];
+        }).reduce(function(memo, destAndIgnored) {
+          return memo.map(function(val, key) {
+            return val.concat(destAndIgnored[key]);
+          });
+        }, [[], [], []]);
+        
+        // TODO Find some faster way to ensure uniqueness here
+        var paths = _.uniq(files[0]);
+        var ignoredPaths = _.uniq(files[1]);
+        var processedDestinations = _.uniq(files[2]);
+
+        // Calculate diff
+        var toRemove = fastArrayDiff(paths, processedDestinations);
+        // And filter also ignored paths
+        toRemove = fastArrayDiff(toRemove, ignoredPaths);
+  
+        return removePaths(justPretend, logger, toRemove);
+      });
     }).then(done);
   });
 };
