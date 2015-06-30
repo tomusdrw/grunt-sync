@@ -3,6 +3,7 @@ var fs = require('promised-io/fs'),
   path = require('path'),
   glob = require('glob'),
   util = require('util'),
+  extfs = require('extfs'),
   _ = require('lodash');
 
 module.exports = function(grunt) {
@@ -120,11 +121,15 @@ module.exports = function(grunt) {
         });
 
         return promise.all(sortedDirs.map(function(dir) {
-          logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
-          if (justPretend) {
-            return;
-          }
-          return fs.rmdir(dir);
+          extfs.isEmpty(dir, function (empty) {
+            if (empty) {
+                logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
+                if (justPretend) {
+                    return;
+                }
+                return fs.rmdir(dir);
+            }
+          });
         }));
       });
     });

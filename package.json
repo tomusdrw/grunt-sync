@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "chai": "1.4.2",
+    "extfs":  "^0.0.7",
     "grunt": "0.4.x",
     "grunt-complexity": "^0.1.51",
     "grunt-contrib-jshint": "0.1.x",
