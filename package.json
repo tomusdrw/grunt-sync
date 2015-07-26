@@ -27,6 +27,7 @@
     "node": ">=0.8.0"
   },
   "scripts": {
+    "lint": "semistandard",
     "test": "mocha"
   },
   "dependencies": {
@@ -41,6 +42,7 @@
     "grunt-contrib-jshint": "0.1.x",
     "grunt-simple-mocha": "0.3.x",
     "mocha": "~1.8.1",
+    "semistandard": "^6.1.2",
     "time-grunt": "^0.4.0"
   },
   "keywords": [
