@@ -44,10 +44,11 @@ sync: {
       {src: ['path/**'], dest: 'dest/'}, // includes files in path and its subdirs
       {cwd: 'path/', src: ['**/*.js', '**/*.css'], dest: 'dest/'}, // makes all src relative to cwd
     ],
-    verbose: true,
-    pretend: true, // Don't do any disk operations - just write log
-    ignoreInDest: "**/*.js", // Never remove js files from destination
-    updateAndDelete: true // Remove all files from dest that are not found in src
+    verbose: true, // Default: false
+    pretend: true, // Don't do any disk operations - just write log. Default: false
+    failOnError: true, // Fail the task when copying is not possible. Default: false
+    ignoreInDest: "**/*.js", // Never remove js files from destination. Default: none
+    updateAndDelete: true // Remove all files from dest that are not found in src. Default: false
 
   }
 }
@@ -70,6 +71,7 @@ Details:
 
 
 ## Changelog
+* 0.2.4 - `failOnError` option
 * 0.2.3 - Fixed issue with files defined as array when using `updateAndDelete`.
 * 0.2.2 - Fixed issue with `updateAndDelete` when source patterns matches only files.
 * 0.2.1 - Fixed grunt Compact Format.

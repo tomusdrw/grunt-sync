@@ -4,7 +4,7 @@
     "options": {
       "jsLintXML": "report.xml",
       "cyclomatic": 3,
-      "halstead": 8,
+      "halstead": 10,
       "maintainability": 90
     }
   }
