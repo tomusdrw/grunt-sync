@@ -13,27 +13,27 @@ npm install grunt-sync --save
 Within your grunt file:
 
 ```javascript
-  grunt.initConfig({
+grunt.initConfig({
 
-    sync: {
-      main: {
-        files: [{
-          cwd: 'src',
-          src: [
-            '**', /* Include everything */
-            '!**/*.txt' /* but exclude txt files */
-          ],
-          dest: 'bin',
-        }],
-        pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much.
-        verbose: true // Display log messages when copying files
-      }
-    }
+sync: {
+main: {
+files: [{
+  cwd: 'src',
+  src: [
+    '**', /* Include everything */
+    '!**/*.txt' /* but exclude txt files */
+  ],
+  dest: 'bin',
+}],
+pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much.
+verbose: true // Display log messages when copying files
+}
+}
 
-  });
+});
 
-  grunt.loadNpmTasks('grunt-sync');
-  grunt.registerTask('default', 'sync');
+grunt.loadNpmTasks('grunt-sync');
+grunt.registerTask('default', 'sync');
 ```
 
 ## More examples
@@ -57,6 +57,17 @@ sync: {
 ```
 npm install grunt-sync --save
 ```
+
+## How it works?
+In the first phase the plugin compares modification times of files in `src` and `dest`. It only copies files with newer modification time. Second phase deletes files that exists in `dest` but have not been found in `src`.
+
+Details:
+
+1. [1st phase] Read modification time of all files in `src`.
+1. [1] Overwrite destination if modification time is newer or destination is directory not file.
+1. [2nd phase] Read all files in `dest` and calculate difference between files in destination and source files.
+1. [2] Delete all files (and directories) that have been found in `dest` but are not found `src` excluding ignored files.
+
 
 ## Changelog
 * 0.2.3 - Fixed issue with files defined as array when using `updateAndDelete`.
