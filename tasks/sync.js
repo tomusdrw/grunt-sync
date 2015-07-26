@@ -38,7 +38,7 @@ module.exports = function (grunt) {
         // when using expanded mapping dest is the destination file
         // not the destination folder
         if (isExpanded || isCompactForm) {
-          dest = fileDef.dest;
+          dest = convertPathsToSystemSpecific(fileDef.dest);
         } else {
           dest = path.join(fileDef.dest, src);
         }
