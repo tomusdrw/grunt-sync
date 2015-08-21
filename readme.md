@@ -72,6 +72,7 @@ Details:
 
 
 ## Changelog
+* 0.3.0 - Comparison using md5 hash of file contents or modification time
 * 0.2.4 - `failOnError` option
 * 0.2.3 - Fixed issue with files defined as array when using `updateAndDelete`.
 * 0.2.2 - Fixed issue with `updateAndDelete` when source patterns matches only files.
@@ -81,13 +82,20 @@ Details:
 * 0.1.1 - Fixed issue with trailing slash in destination.
 * 0.1.0 - Files missing that are not in `src` are deleted from `dest` (unless you specify `updateOnly`)
 
+
 ## Migration 0.1.x -> 0.2.x
 In version 0.2 you have to explicitly specify that you want the plugin to remove files from destination. See `updateAndDelete` option and run with `pretend:true` first to make sure that it doesn't remove any crucial files. You can tune what files should be left untouched with `ignoreInDest` property.
 
 If you have `updateOnly:true` in your 0.1 config you can remove this option. For those who used `updateOnly:false` you have to include `updateAndDelete:true` in 0.2 config to keep the same behavior.
 
-## TODO
 
+## Contributors
+* Michael Mifsud ([xzyfer](https://github.com/xzyfer))
+* Erwan Jegouzo ([erwanjegouzo](https://github.com/erwanjegouzo))
+* Janek Lasocki-Biczysko ([janeklb](https://github.com/janeklb))
+
+
+## TODO
 * Research if it's possible to have better integration with `grunt-contrib-watch` - update only changed files instead of scanning everything.
 * Some tests for common problems
 * Some tests to assure performance
