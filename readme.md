@@ -72,6 +72,7 @@ Details:
 
 
 ## Changelog
+* 0.4.0 - Adding better patterns support for `ignoreInDest`
 * 0.3.0 - Comparison using md5 hash of file contents or modification time
 * 0.2.4 - `failOnError` option
 * 0.2.3 - Fixed issue with files defined as array when using `updateAndDelete`.

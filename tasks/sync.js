@@ -59,14 +59,17 @@ module.exports = function (grunt) {
 
       var getDestPaths = function (dest, pattern) {
         var defer = new promise.Deferred();
-        glob(path.join(dest, pattern), {
+        glob(pattern, {
+          cwd: dest,
           dot: true
         }, function (err, result) {
           if (err) {
             defer.reject(err);
             return;
           }
-          defer.resolve(result);
+          defer.resolve(result.map(function (filePath) {
+            return path.join(dest, filePath);
+          }));
         });
         return defer.promise;
       };
