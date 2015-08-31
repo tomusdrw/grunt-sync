@@ -294,7 +294,12 @@ module.exports = function (grunt) {
 
   function convertPathsToSystemSpecific (paths) {
     return paths.map(function (filePath) {
-      return path.join.apply(path, filePath.split('/'));
+      var newPath = path.join.apply(path, filePath.split('/'));
+      var startsWithSlash = filePath[0] === '/';
+      if (startsWithSlash) {
+        return '/' + newPath;
+      }
+      return newPath;
     });
   }
 
