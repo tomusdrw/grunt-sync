@@ -3,6 +3,7 @@ var promise = require('promised-io/promise');
 var path = require('path');
 var glob = require('glob');
 var util = require('util');
+var rimrafPromise = require('rimraf-promise');
 var _ = require('lodash');
 
 module.exports = function (grunt) {
@@ -253,17 +254,12 @@ module.exports = function (grunt) {
         }
         return fs.unlink(filePath);
       })).then(function () {
-        // Then process directories in ascending order
-        var sortedDirs = paths.dirs.sort(function (a, b) {
-          return b.length - a.length;
-        });
-
-        return promise.all(sortedDirs.map(function (dir) {
+        return promise.all(paths.dirs.map(function (dir) {
           logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
           if (justPretend) {
             return;
           }
-          return fs.rmdir(dir);
+          return rimrafPromise(dir);
         }));
       });
     });
