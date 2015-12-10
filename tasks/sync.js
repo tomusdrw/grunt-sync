@@ -258,13 +258,13 @@ module.exports = function (grunt) {
           return b.length - a.length;
         });
 
-        return promise.all(sortedDirs.map(function (dir) {
+        return sortedDirs.map(function (dir) {
           logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
           if (justPretend) {
             return;
           }
-          return fs.rmdir(dir);
-        }));
+          return fs.rmdirSync(dir);
+        });
       });
     });
   }
