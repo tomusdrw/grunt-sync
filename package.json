@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "glob": "^4.0.5",
-    "lodash": "^2.4.1",
+    "lodash": "^3.10.1",
     "md5-file": "^2.0.3",
     "promised-io": "0.3.3"
   },
