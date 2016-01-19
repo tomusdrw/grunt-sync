@@ -39,7 +39,7 @@ module.exports = function (grunt) {
         // when using expanded mapping dest is the destination file
         // not the destination folder
         if (isExpanded || isCompactForm) {
-          dest = fileDef.dest;
+          dest = convertPathToSystemSpecific(fileDef.dest);
         } else {
           dest = path.join(fileDef.dest, src);
         }
@@ -292,14 +292,20 @@ module.exports = function (grunt) {
     });
   }
 
+  function convertPathToSystemSpecific (pathToConvert) {
+    var newPath = path.join.apply(path, pathToConvert.split('/'));
+    var startsWithSlash = pathToConvert[0] === '/';
+    if (startsWithSlash) {
+      return '/' + newPath;
+    }
+
+    return newPath;
+  }
+
   function convertPathsToSystemSpecific (paths) {
+
     return paths.map(function (filePath) {
-      var newPath = path.join.apply(path, filePath.split('/'));
-      var startsWithSlash = filePath[0] === '/';
-      if (startsWithSlash) {
-        return '/' + newPath;
-      }
-      return newPath;
+      convertPathToSystemSpecific (filePath);
     });
   }
 
