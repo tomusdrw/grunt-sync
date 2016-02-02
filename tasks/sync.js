@@ -14,6 +14,7 @@ module.exports = function (grunt) {
     var justPretend = !!this.data.pretend;
     var failOnError = !!this.data.failOnError;
     var ignoredPatterns = this.data.ignoreInDest;
+    var comparatorFactory = getComparatorFactory(this.data.compareUsing || 'mtime', logger);
     var expandedPaths = {};
 
     var getExpandedPaths = function (origDest) {
@@ -48,7 +49,7 @@ module.exports = function (grunt) {
           addDirectoriesPaths(processedDestinations, dest);
         }
         // Process pair
-        return processPair(justPretend, failOnError, logger, path.join(cwd, src), dest);
+        return processPair(justPretend, failOnError, logger, comparatorFactory, path.join(cwd, src), dest);
       }));
 
     }, this)).then(function () {
@@ -58,14 +59,17 @@ module.exports = function (grunt) {
 
       var getDestPaths = function (dest, pattern) {
         var defer = new promise.Deferred();
-        glob(path.join(dest, pattern), {
+        glob(pattern, {
+          cwd: dest,
           dot: true
         }, function (err, result) {
           if (err) {
             defer.reject(err);
             return;
           }
-          defer.resolve(result);
+          defer.resolve(result.map(function (filePath) {
+            return path.join(dest, filePath);
+          }));
         });
         return defer.promise;
       };
@@ -133,7 +137,7 @@ module.exports = function (grunt) {
     }).then(done);
   });
 
-  function processPair (justPretend, failOnError, logger, src, dest) {
+  function processPair (justPretend, failOnError, logger, comparatorFactory, src, dest) {
 
     // stat destination file
     return promise.all([fs.stat(src), fs.stat(dest)]).then(function (result) {
@@ -142,8 +146,9 @@ module.exports = function (grunt) {
 
       var isSrcDirectory = srcStat.isDirectory();
       var typeDiffers = isSrcDirectory !== destStat.isDirectory();
+      var haventChangedFn = comparatorFactory(src, srcStat, dest, destStat);
 
-      overwriteOrUpdate(isSrcDirectory, typeDiffers, srcStat, destStat);
+      overwriteOrUpdate(isSrcDirectory, typeDiffers, haventChangedFn);
     }, function () {
       // we got an error which means that destination file does not exist
       // so make a copy
@@ -202,7 +207,7 @@ module.exports = function (grunt) {
       }
     }
 
-    function overwriteOrUpdate (isSrcDirectory, typeDiffers, srcStat, destStat) {
+    function overwriteOrUpdate (isSrcDirectory, typeDiffers, haventChangedFn) {
 
       // If types differ we have to overwrite destination.
       if (typeDiffers) {
@@ -214,8 +219,8 @@ module.exports = function (grunt) {
         return;
       }
 
-      // we can now compare modification dates of files
-      if (isSrcDirectory || srcStat.mtime.getTime() <= destStat.mtime.getTime()) {
+      // we can now compare the files
+      if (isSrcDirectory || haventChangedFn()) {
         return;
       }
 
@@ -253,13 +258,13 @@ module.exports = function (grunt) {
           return b.length - a.length;
         });
 
-        return promise.all(sortedDirs.map(function (dir) {
+        return sortedDirs.map(function (dir) {
           logger.writeln('Removing dir ' + dir.cyan + ' because not longer in src.');
           if (justPretend) {
             return;
           }
-          return fs.rmdir(dir);
-        }));
+          return fs.rmdirSync(dir);
+        });
       });
     });
   }
@@ -287,9 +292,19 @@ module.exports = function (grunt) {
     });
   }
 
+  function convertPathToSystemSpecific (pathToConvert) {
+    var newPath = path.join.apply(path, pathToConvert.split('/'));
+    var startsWithSlash = pathToConvert[0] === '/';
+    if (startsWithSlash) {
+      return '/' + newPath;
+    }
+
+    return newPath;
+  }
+
   function convertPathsToSystemSpecific (paths) {
     return paths.map(function (filePath) {
-      return path.join.apply(path, filePath.split('/'));
+      return convertPathToSystemSpecific (filePath);
     });
   }
 
@@ -303,6 +318,34 @@ module.exports = function (grunt) {
       if (arr.indexOf(p) === -1) {
         arr.push(p);
       }
+    }
+  }
+
+  function getComparatorFactory(compareUsing, logger) {
+
+    var md5;
+
+    switch (compareUsing) {
+      case 'md5':
+        md5 = require('md5-file');
+        return createMd5Comparator;
+      case 'mtime':
+        return createMTimeComparator;
+      default:
+        logger.writeln("Invalid 'compareUsing' option, falling back to default 'mtime'");
+        return createMTimeComparator;
+    }
+
+    function createMTimeComparator(src, srcStat, dest, destStat) {
+      return function() {
+        return srcStat.mtime.getTime() <= destStat.mtime.getTime();
+      };
+    }
+
+    function createMd5Comparator(src, srcStat, dest, destStat) {
+      return function() {
+        return md5(src) == md5(dest);
+      };
     }
   }
 

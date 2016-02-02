@@ -48,7 +48,8 @@ sync: {
     pretend: true, // Don't do any disk operations - just write log. Default: false
     failOnError: true, // Fail the task when copying is not possible. Default: false
     ignoreInDest: "**/*.js", // Never remove js files from destination. Default: none
-    updateAndDelete: true // Remove all files from dest that are not found in src. Default: false
+    updateAndDelete: true, // Remove all files from dest that are not found in src. Default: false
+    compareUsing: "md5" // compares via md5 hash of file contents, instead of file modification time. Default: "mtime"
 
   }
 }
@@ -66,11 +67,14 @@ Details:
 
 1. [1st phase] Read modification time of all files in `src`.
 1. [1] Overwrite destination if modification time is newer or destination is directory not file.
-1. [2nd phase] Read all files in `dest` and calculate difference between files in destination and source files.
+1. [2nd phase] Get a list of the files in `dest` and calculate difference between destination and source.
 1. [2] Delete all files (and directories) that have been found in `dest` but are not found `src` excluding ignored files.
 
 
 ## Changelog
+* 0.5.0 - Synchronous removal of directories (to avoid race conditions)
+* 0.4.0 - Adding better patterns support for `ignoreInDest`
+* 0.3.0 - Comparison using md5 hash of file contents or modification time
 * 0.2.4 - `failOnError` option
 * 0.2.3 - Fixed issue with files defined as array when using `updateAndDelete`.
 * 0.2.2 - Fixed issue with `updateAndDelete` when source patterns matches only files.
@@ -80,13 +84,20 @@ Details:
 * 0.1.1 - Fixed issue with trailing slash in destination.
 * 0.1.0 - Files missing that are not in `src` are deleted from `dest` (unless you specify `updateOnly`)
 
+
 ## Migration 0.1.x -> 0.2.x
 In version 0.2 you have to explicitly specify that you want the plugin to remove files from destination. See `updateAndDelete` option and run with `pretend:true` first to make sure that it doesn't remove any crucial files. You can tune what files should be left untouched with `ignoreInDest` property.
 
 If you have `updateOnly:true` in your 0.1 config you can remove this option. For those who used `updateOnly:false` you have to include `updateAndDelete:true` in 0.2 config to keep the same behavior.
 
-## TODO
 
+## Contributors
+* Michael Mifsud ([xzyfer](https://github.com/xzyfer))
+* Erwan Jegouzo ([erwanjegouzo](https://github.com/erwanjegouzo))
+* Janek Lasocki-Biczysko ([janeklb](https://github.com/janeklb))
+
+
+## TODO
 * Research if it's possible to have better integration with `grunt-contrib-watch` - update only changed files instead of scanning everything.
 * Some tests for common problems
 * Some tests to assure performance
