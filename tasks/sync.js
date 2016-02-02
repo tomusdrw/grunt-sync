@@ -303,6 +303,10 @@ module.exports = function (grunt) {
   }
 
   function convertPathsToSystemSpecific (paths) {
+    if (!paths.map) {
+      return convertPathToSystemSpecific (paths);
+    }
+
     return paths.map(function (filePath) {
       return convertPathToSystemSpecific (filePath);
     });
