@@ -67,9 +67,10 @@ Details:
 
 1. [1st phase] Read modification time of all files in `src`.
 1. [1] Overwrite destination if modification time is newer or destination is directory not file.
-1. [2nd phase] Get a list of the files in `dest` and calculate difference between destination and source.
-1. [2] Delete all files (and directories) that have been found in `dest` but are not found `src` excluding ignored files.
+1. [2nd phase]* Get a list of the files in `dest` and calculate difference between destination and source.
+1. [2]* Delete all files (and directories) that have been found in `dest` but are not found `src` excluding ignored files.
 
+*second phase only occurs if updateAndDelete is set to true (whitch is set to false by default)
 
 ## Changelog
 * 0.5.0 - Synchronous removal of directories (to avoid race conditions)
