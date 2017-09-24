@@ -4,6 +4,11 @@ A [grunt](http://github.com/gruntjs/grunt/) task to keep directories in sync.
 It is very similar to [grunt-contrib-copy](https://github.com/gruntjs/grunt-contrib-copy) but
 tries to copy only those files that has actually changed.
 
+
+## Deprecation notice
+
+This package is not actively developed any more.
+
 ## Usage
 
 ```bash
@@ -14,22 +19,20 @@ Within your grunt file:
 
 ```javascript
 grunt.initConfig({
-
-sync: {
-main: {
-files: [{
-  cwd: 'src',
-  src: [
-    '**', /* Include everything */
-    '!**/*.txt' /* but exclude txt files */
-  ],
-  dest: 'bin',
-}],
-pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much.
-verbose: true // Display log messages when copying files
-}
-}
-
+  sync: {
+    main: {
+      files: [{
+        cwd: 'src',
+        src: [
+          '**', /* Include everything */
+          '!**/*.txt' /* but exclude txt files */
+        ],
+        dest: 'bin',
+      }],
+      pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much.
+      verbose: true // Display log messages when copying files
+    }
+  }
 });
 
 grunt.loadNpmTasks('grunt-sync');

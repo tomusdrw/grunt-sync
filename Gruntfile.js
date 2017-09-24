@@ -1,4 +1,4 @@
-/*global module:false*/
+/* global module:false */
 module.exports = function (grunt) {
   require('time-grunt')(grunt);
 
@@ -34,5 +34,4 @@ module.exports = function (grunt) {
 
   // Used for testing only, you shouldn't add this to your code:
   grunt.loadTasks('tasks');
-
 };
