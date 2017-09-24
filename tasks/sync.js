@@ -319,13 +319,12 @@ module.exports = function (grunt) {
 
   function addDirectoriesPaths (destinations, dest) {
     var parts = dest.split(path.sep);
-    var i, partial_path;
-    partial_path = parts[0];
+    var partialPath = parts[0];
 
     parts.slice(1).forEach(function (part) {
-      partial_path += path.sep + part;
-      if (destinations.indexOf(partial_path) === -1) {
-        destinations.push(partial_path);
+      partialPath += path.sep + part;
+      if (destinations.indexOf(partialPath) === -1) {
+        destinations.push(partialPath);
       }
     });
   }
