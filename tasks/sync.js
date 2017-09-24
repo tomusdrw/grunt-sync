@@ -16,6 +16,17 @@ module.exports = function (grunt) {
     var ignoredPatterns = this.data.ignoreInDest;
     var comparatorFactory = getComparatorFactory(this.data.compareUsing || 'mtime', logger);
     var expandedPaths = {};
+    var options = this.options({
+      encoding: grunt.file.defaultEncoding,
+      // processContent/processContentExclude deprecated renamed to process/noProcess
+      processContent: false,
+      processContentExclude: []
+    });
+    var copyOptions = {
+      encoding: options.encoding,
+      process: options.process || options.processContent,
+      noProcess: options.noProcess || options.processContentExclude
+    };
 
     var getExpandedPaths = function (origDest) {
       if (!expandedPaths[origDest]) {
@@ -49,7 +60,7 @@ module.exports = function (grunt) {
           addDirectoriesPaths(processedDestinations, dest);
         }
         // Process pair
-        return processPair(justPretend, failOnError, logger, comparatorFactory, path.join(cwd, src), dest);
+        return processPair(justPretend, failOnError, logger, comparatorFactory, path.join(cwd, src), dest, copyOptions);
       }));
 
     }, this)).then(function () {
@@ -137,7 +148,7 @@ module.exports = function (grunt) {
     }).then(done);
   });
 
-  function processPair (justPretend, failOnError, logger, comparatorFactory, src, dest) {
+  function processPair (justPretend, failOnError, logger, comparatorFactory, src, dest, copyOptions) {
 
     // stat destination file
     return promise.all([fs.stat(src), fs.stat(dest)]).then(function (result) {
@@ -162,7 +173,7 @@ module.exports = function (grunt) {
         logger.writeln('Copying ' + src.cyan + ' -> ' + dest.cyan);
 
         doOrPretend(function () {
-          tryCopy(src, dest);
+          tryCopy(src, dest, copyOptions);
         });
       }
     });
@@ -182,9 +193,9 @@ module.exports = function (grunt) {
       grunt.log.warn(msg);
     }
 
-    function tryCopy (src, dest) {
+    function tryCopy (src, dest, copyOptions) {
       try {
-        grunt.file.copy(src, dest);
+        grunt.file.copy(src, dest, copyOptions);
       } catch (e) {
         warnOrFail('Cannot copy to ' + dest.red);
       }
@@ -201,7 +212,7 @@ module.exports = function (grunt) {
     function overwriteDest (src, dest) {
       try {
         grunt.file['delete'](dest);
-        grunt.file.copy(src, dest);
+        grunt.file.copy(src, dest, copyOptions);
       } catch (e) {
         warnOrFail('Cannot overwrite ' + dest.red);
       }
@@ -214,7 +225,7 @@ module.exports = function (grunt) {
         logger.writeln('Overwriting ' + dest.cyan + ' because type differs.');
 
         doOrPretend(function () {
-          overwriteDest(src, dest);
+          overwriteDest(src, dest, copyOptions);
         });
         return;
       }
@@ -227,7 +238,7 @@ module.exports = function (grunt) {
       logger.writeln('Updating file ' + dest.cyan);
       doOrPretend(function () {
         // and just update destination
-        tryCopy(src, dest);
+        tryCopy(src, dest, copyOptions);
       });
     }
   }
