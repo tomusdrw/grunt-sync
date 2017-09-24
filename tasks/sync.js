@@ -2,11 +2,9 @@ var fs = require('promised-io/fs');
 var promise = require('promised-io/promise');
 var path = require('path');
 var glob = require('glob');
-var util = require('util');
 var _ = require('lodash');
 
 module.exports = function (grunt) {
-
   grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function () {
     var done = this.async();
     var logger = grunt[this.data.verbose ? 'log' : 'verbose'];
@@ -62,7 +60,6 @@ module.exports = function (grunt) {
         // Process pair
         return processPair(justPretend, failOnError, logger, comparatorFactory, path.join(cwd, src), dest, copyOptions);
       }));
-
     }, this)).then(function () {
       if (updateOnly) {
         return;
@@ -92,7 +89,7 @@ module.exports = function (grunt) {
           return defer.promise;
         }
 
-        if (!util.isArray(ignore)) {
+        if (!Array.isArray(ignore)) {
           ignore = [ignore];
         }
 
@@ -149,7 +146,6 @@ module.exports = function (grunt) {
   });
 
   function processPair (justPretend, failOnError, logger, comparatorFactory, src, dest, copyOptions) {
-
     // stat destination file
     return promise.all([fs.stat(src), fs.stat(dest)]).then(function (result) {
       var srcStat = result[0];
@@ -219,7 +215,6 @@ module.exports = function (grunt) {
     }
 
     function overwriteOrUpdate (isSrcDirectory, typeDiffers, haventChangedFn) {
-
       // If types differ we have to overwrite destination.
       if (typeDiffers) {
         logger.writeln('Overwriting ' + dest.cyan + ' because type differs.');
@@ -244,7 +239,6 @@ module.exports = function (grunt) {
   }
 
   function removePaths (justPretend, logger, paths) {
-
     return promise.all(paths.map(function (file) {
       return fs.stat(file).then(function (stat) {
         return {
@@ -315,29 +309,27 @@ module.exports = function (grunt) {
 
   function convertPathsToSystemSpecific (paths) {
     if (!paths.map) {
-      return convertPathToSystemSpecific (paths);
+      return convertPathToSystemSpecific(paths);
     }
 
     return paths.map(function (filePath) {
-      return convertPathToSystemSpecific (filePath);
+      return convertPathToSystemSpecific(filePath);
     });
   }
 
-  function addDirectoriesPaths (arr, dest) {
-    var f = dest.split(path.sep);
-    var i, p;
-    p = f[0];
+  function addDirectoriesPaths (destinations, dest) {
+    var parts = dest.split(path.sep);
+    var partialPath = parts[0];
 
-    for (i = 1; i < f.length - 1; ++i) {
-      p += path.sep + f[i];
-      if (arr.indexOf(p) === -1) {
-        arr.push(p);
+    parts.slice(1).forEach(function (part) {
+      partialPath += path.sep + part;
+      if (destinations.indexOf(partialPath) === -1) {
+        destinations.push(partialPath);
       }
-    }
+    });
   }
 
-  function getComparatorFactory(compareUsing, logger) {
-
+  function getComparatorFactory (compareUsing, logger) {
     var md5;
 
     switch (compareUsing) {
@@ -351,17 +343,16 @@ module.exports = function (grunt) {
         return createMTimeComparator;
     }
 
-    function createMTimeComparator(src, srcStat, dest, destStat) {
-      return function() {
+    function createMTimeComparator (src, srcStat, dest, destStat) {
+      return function () {
         return srcStat.mtime.getTime() <= destStat.mtime.getTime();
       };
     }
 
-    function createMd5Comparator(src, srcStat, dest, destStat) {
-      return function() {
-        return md5(src) == md5(dest);
+    function createMd5Comparator (src, srcStat, dest, destStat) {
+      return function () {
+        return md5(src) === md5(dest);
       };
     }
   }
-
 };
