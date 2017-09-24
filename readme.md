@@ -76,6 +76,7 @@ Details:
 *second phase only occurs if updateAndDelete is set to true (whitch is set to false by default)
 
 ## Changelog
+* 0.7.0 - Pass down grunt-copy options
 * 0.6.2 - Bumped major versions of important dependencies
 * 0.5.0 - Synchronous removal of directories (to avoid race conditions)
 * 0.4.0 - Adding better patterns support for `ignoreInDest`
