@@ -317,17 +317,17 @@ module.exports = function (grunt) {
     });
   }
 
-  function addDirectoriesPaths (arr, dest) {
-    var f = dest.split(path.sep);
-    var i, p;
-    p = f[0];
+  function addDirectoriesPaths (destinations, dest) {
+    var parts = dest.split(path.sep);
+    var i, partial_path;
+    partial_path = parts[0];
 
-    for (i = 1; i < f.length - 1; ++i) {
-      p += path.sep + f[i];
-      if (arr.indexOf(p) === -1) {
-        arr.push(p);
+    parts.slice(1).forEach(function (part) {
+      partial_path += path.sep + part;
+      if (destinations.indexOf(partial_path) === -1) {
+        destinations.push(partial_path);
       }
-    }
+    });
   }
 
   function getComparatorFactory (compareUsing, logger) {

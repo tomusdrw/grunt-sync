@@ -23,7 +23,7 @@
   },
   "scripts": {
     "lint": "semistandard",
-    "test": "mocha"
+    "test": "grunt simplemocha"
   },
   "dependencies": {
     "glob": "7.0.5",
