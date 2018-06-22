@@ -1,7 +1,6 @@
 var fs = require('fs-extra');
 var path = require('path');
 var glob = require('glob');
-var _ = require('lodash');
 
 module.exports = function (grunt) {
   grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function () {
@@ -123,10 +122,10 @@ module.exports = function (grunt) {
           });
         }, [[], [], []]);
 
-        // TODO Find some faster way to ensure uniqueness here
-        var paths = _.uniq(files[0]);
-        var ignoredPaths = _.uniq(files[1]);
-        var processedDestinations = _.uniq(files[2]);
+        // Ensure uniqueness
+        var paths = files[0].filter(filterOutDuplicates);
+        var ignoredPaths = files[1].filter(filterOutDuplicates);
+        var processedDestinations = files[2].filter(filterOutDuplicates);
 
         // Calculate diff
         var toRemove = fastArrayDiff(paths, processedDestinations);
@@ -279,6 +278,10 @@ module.exports = function (grunt) {
       files: [],
       dirs: []
     });
+  }
+
+  function filterOutDuplicates (val, index, array) {
+    return array.indexOf(val) === index;
   }
 
   function fastArrayDiff (from, diff) {

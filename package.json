@@ -29,7 +29,6 @@
   "dependencies": {
     "fs-extra": "6.0.1",
     "glob": "7.0.5",
-    "lodash": "4.17.4",
     "md5-file": "2.0.3"
   },
   "devDependencies": {
