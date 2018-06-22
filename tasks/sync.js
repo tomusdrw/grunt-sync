@@ -1,8 +1,6 @@
-var fs = require('promised-io/fs');
-var promise = require('promised-io/promise');
+var fs = require('fs-extra');
 var path = require('path');
 var glob = require('glob');
-var _ = require('lodash');
 
 module.exports = function (grunt) {
   grunt.registerMultiTask('sync', 'Synchronize content of two directories.', function () {
@@ -35,7 +33,7 @@ module.exports = function (grunt) {
       return expandedPaths[origDest];
     };
 
-    promise.all(this.files.map(function (fileDef) {
+    Promise.all(this.files.map(function (fileDef) {
       var isCompactForm = this.data.src && this.data.dest;
       var cwd = fileDef.cwd ? fileDef.cwd : '.';
       var isExpanded = fileDef.orig.expand;
@@ -43,7 +41,7 @@ module.exports = function (grunt) {
 
       var processedDestinations = getExpandedPaths(origDest);
 
-      return promise.all(fileDef.src.map(function (src) {
+      return Promise.all(fileDef.src.map(function (src) {
         var dest;
         // when using expanded mapping dest is the destination file
         // not the destination folder
@@ -66,49 +64,43 @@ module.exports = function (grunt) {
       }
 
       var getDestPaths = function (dest, pattern) {
-        var defer = new promise.Deferred();
-        glob(pattern, {
-          cwd: dest,
-          dot: true
-        }, function (err, result) {
-          if (err) {
-            defer.reject(err);
-            return;
-          }
-          defer.resolve(result.map(function (filePath) {
-            return path.join(dest, filePath);
-          }));
+        return new Promise(function (resolve, reject) {
+          glob(pattern, {
+            cwd: dest,
+            dot: true
+          }, function (err, result) {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(result.map(function (filePath) {
+              return path.join(dest, filePath);
+            }));
+          });
         });
-        return defer.promise;
       };
 
       var getIgnoredPaths = function (dest, ignore) {
-        var defer = new promise.Deferred();
         if (!ignore) {
-          defer.resolve([]);
-          return defer.promise;
+          return Promise.resolve([]);
         }
 
         if (!Array.isArray(ignore)) {
           ignore = [ignore];
         }
 
-        promise.all(ignore.map(function (pattern) {
+        return Promise.all(ignore.map(function (pattern) {
           return getDestPaths(dest, pattern);
         })).then(function (results) {
           var flat = results.reduce(function (memo, a) {
             return memo.concat(a);
           }, []);
-          defer.resolve(flat);
-        }, function (err) {
-          defer.reject(err);
+          return flat;
         });
-
-        return defer.promise;
       };
 
       // Second pass
-      return promise.all(Object.keys(expandedPaths).map(function (dest) {
+      return Promise.all(Object.keys(expandedPaths).map(function (dest) {
         var processedDestinations = convertPathsToSystemSpecific(expandedPaths[dest]);
 
         // We have to do second pass to remove objects from dest
@@ -117,7 +109,7 @@ module.exports = function (grunt) {
         // Check if we have any ignore patterns
         var ignoredPaths = getIgnoredPaths(dest, ignoredPatterns);
 
-        return promise.all([destPaths, ignoredPaths, processedDestinations]);
+        return Promise.all([destPaths, ignoredPaths, processedDestinations]);
       })).then(function (result) {
         var files = result.map(function (destAndIgnored) {
           var paths = convertPathsToSystemSpecific(destAndIgnored[0]);
@@ -130,10 +122,10 @@ module.exports = function (grunt) {
           });
         }, [[], [], []]);
 
-        // TODO Find some faster way to ensure uniqueness here
-        var paths = _.uniq(files[0]);
-        var ignoredPaths = _.uniq(files[1]);
-        var processedDestinations = _.uniq(files[2]);
+        // Ensure uniqueness
+        var paths = files[0].filter(filterOutDuplicates);
+        var ignoredPaths = files[1].filter(filterOutDuplicates);
+        var processedDestinations = files[2].filter(filterOutDuplicates);
 
         // Calculate diff
         var toRemove = fastArrayDiff(paths, processedDestinations);
@@ -147,7 +139,7 @@ module.exports = function (grunt) {
 
   function processPair (justPretend, failOnError, logger, comparatorFactory, src, dest, copyOptions) {
     // stat destination file
-    return promise.all([fs.stat(src), fs.stat(dest)]).then(function (result) {
+    return Promise.all([fs.stat(src), fs.stat(dest)]).then(function (result) {
       var srcStat = result[0];
       var destStat = result[1];
 
@@ -239,7 +231,7 @@ module.exports = function (grunt) {
   }
 
   function removePaths (justPretend, logger, paths) {
-    return promise.all(paths.map(function (file) {
+    return Promise.all(paths.map(function (file) {
       return fs.stat(file).then(function (stat) {
         return {
           file: file,
@@ -250,7 +242,7 @@ module.exports = function (grunt) {
       var paths = splitFilesAndDirs(stats);
 
       // First we need to process files
-      return promise.all(paths.files.map(function (filePath) {
+      return Promise.all(paths.files.map(function (filePath) {
         logger.writeln('Unlinking ' + filePath.cyan + ' because it was removed from src.');
 
         if (justPretend) {
@@ -286,6 +278,10 @@ module.exports = function (grunt) {
       files: [],
       dirs: []
     });
+  }
+
+  function filterOutDuplicates (val, index, array) {
+    return array.indexOf(val) === index;
   }
 
   function fastArrayDiff (from, diff) {

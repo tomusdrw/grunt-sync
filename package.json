@@ -1,7 +1,7 @@
 {
   "name": "grunt-sync",
   "description": "Task to synchronize two directories. Similar to grunt-copy but updates only files that have been changed.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "homepage": "https://github.com/tomusdrw/grunt-sync.git",
   "author": {
     "name": "Tomasz Drwiega",
@@ -19,7 +19,7 @@
   "main": "Gruntfile.js",
   "readmeFilename": "readme.md",
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=4.0.0"
   },
   "scripts": {
     "lint": "semistandard",
@@ -27,10 +27,9 @@
     "grunt": "grunt"
   },
   "dependencies": {
+    "fs-extra": "6.0.1",
     "glob": "7.0.5",
-    "lodash": "4.17.4",
-    "md5-file": "2.0.3",
-    "promised-io": "0.3.5"
+    "md5-file": "2.0.3"
   },
   "devDependencies": {
     "chai": "4.1.2",
