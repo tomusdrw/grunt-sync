@@ -1,7 +1,7 @@
 {
   "name": "grunt-sync",
   "description": "Task to synchronize two directories. Similar to grunt-copy but updates only files that have been changed.",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "homepage": "https://github.com/tomusdrw/grunt-sync.git",
   "author": {
     "name": "Tomasz Drwiega",
@@ -19,7 +19,7 @@
   "main": "Gruntfile.js",
   "readmeFilename": "readme.md",
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6 <7 || >=8"
   },
   "scripts": {
     "lint": "semistandard",
