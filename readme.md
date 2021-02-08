@@ -7,7 +7,7 @@ tries to copy only those files that has actually changed.
 
 ## Deprecation notice
 
-This package is not actively developed any more.
+This package is not actively developed any more. Consider using [`grunt-newer`](https://github.com/tschaub/grunt-newer) + [`grunt-contrib-copy`](https://github.com/gruntjs/grunt-contrib-copy) as an alternative.
 
 ## Usage
 
